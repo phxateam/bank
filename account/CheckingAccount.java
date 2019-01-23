@@ -17,7 +17,7 @@ public class CheckingAccount extends Account {
 	}
 	
 	public String getAccType() {
-		return "Checking";
+		return "C";
 		
 	}
 }

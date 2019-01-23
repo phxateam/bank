@@ -3,7 +3,8 @@ package bank.transaction;
 import java.util.Date;
 
 public class Transaction {
-	public static int currId = 0;
+	
+	public static int currId = new TransactionServices().generateId();
 	int transId;
 	double transAmount;
 	Date transDate;
@@ -14,6 +15,10 @@ public class Transaction {
 		this.transAmount = transAmount;
 		this.transDate = transDate;
 		this.transType = transType;
+	}
+	
+	public Transaction() {
+		
 	}
 
 	public int getTransId() {

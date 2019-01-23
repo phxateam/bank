@@ -14,6 +14,6 @@ public class SavingAccount extends Account {
 	}
 	
 	public String getAccType() {
-		return "Savings";
+		return "S";
 	}
 }

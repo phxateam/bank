@@ -1,22 +1,25 @@
 package bank;
 
 import bank.account.Account;
+import bank.account.AccountServices;
 import bank.account.CheckingAccount;
 import bank.account.SavingAccount;
 import bank.customer.Address;
 import bank.customer.Customer;
+import bank.customer.CustomerServices;
 import bank.exception.*;
 import bank.transaction.TransactionServices;
-
 import java.util.*;
 
 public class MyBank {
 	
-	private Map<Integer, Customer> customers;
+	//private Map<Integer, Customer> customers;
 	private Scanner scanner = new Scanner(System.in);
+	private CustomerServices custServ = new CustomerServices();
+	private AccountServices accServ = new AccountServices();
 	
 	private MyBank(){
-		customers = new HashMap<Integer, Customer>();
+		//customers = custServ.getAllCustomers();
 		
 		while(true) 
 		{		
@@ -29,7 +32,8 @@ public class MyBank {
 					if(custId < 0)
 						throw new InvalidCustIDException();
 					
-					if(customers.containsKey(custId)) {
+					Customer customer = custServ.getCust(custId);
+					if(customer != null) {
 						throw new DuplicateCustomerException();
 					}
 				}
@@ -57,7 +61,8 @@ public class MyBank {
 				
 				Customer cust = new Customer();
 				cust.createCustomer(custId, custName, custPhone, custEmail, account, objAddress);
-				customers.put(cust.getCustID(), cust);
+				custServ.insertCustomer(cust);
+				accServ.insertAccount(account, custId);
 				
 				while(true) {
 					System.out.println("Enter additional accounts? {Y/N)");
@@ -66,8 +71,9 @@ public class MyBank {
 						break;
 					
 					account = createAccount();
-					if(account != null)
-						cust.addCustAccount(account);
+					if(account != null) {
+						accServ.insertAccount(account, cust.getCustID());
+					}
 				}
 				
 				cust.printCustomerDetails();
@@ -77,6 +83,8 @@ public class MyBank {
 				scanner.next();
 			}
 			catch(Exception e) {
+				System.out.println("ERROR");
+				e.printStackTrace();
 			}
 			finally {
 				System.out.println("Continue making customers? (Y/N)");
@@ -85,15 +93,7 @@ public class MyBank {
 					break;
 			}
 		}
-	}
-	
-	public Map<Integer, Customer> getCustomers() {
-		return customers;
-	}
-	
-	public void setCustomers(Map<Integer, Customer> customers) {
-		this.customers = customers;
-	}
+	}	
 	
 	private Account createAccount() {
 		System.out.println("Enter type of account (C/S)");
@@ -102,25 +102,19 @@ public class MyBank {
 		System.out.println("Enter account id and balance");
 		int accId = scanner.nextInt();
 
-		Set<Integer> custIds = customers.keySet();
-
-		for(Integer id: custIds) {
-			ArrayList<Account> accounts = customers.get(id).getCustAccounts();
-			for(Account acc : accounts) {
-				if(acc.getAccId() == accId) {
-					System.out.println("Duplicate account id");
-					return null;
-				}			
-			}
+		ArrayList<Account> accounts = accServ.getAllAccounts();
+		for(Account acc : accounts) {
+			if(acc.getAccId() == accId) {
+				System.out.println("Duplicate account id");
+				return createAccount();
+			}			
 		}
 		
 		double accBalance = scanner.nextDouble();
 		
 		Account objAccount = new SavingAccount();
 		
-		if(type=='S')
-			objAccount = new SavingAccount();
-		else
+		if(type=='C')
 			objAccount = new CheckingAccount();
 		
 		objAccount.createAccount(accId, accBalance);
@@ -128,18 +122,11 @@ public class MyBank {
 		return objAccount;
 	}
 	
-	private Customer getCustomer(int custId) {
-		if(customers.containsKey(custId))
-			return customers.get(custId);
-
-		return null;
-	}
-	
-	
-	
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
 		MyBank myBank = new MyBank();
+		CustomerServices custServ = new CustomerServices();
+		AccountServices accServ = new AccountServices();
 		
 		/*if(myBank.getCustomers().isEmpty()) {
 			System.out.println("TEST RUN");
@@ -152,14 +139,14 @@ public class MyBank {
 			System.out.println("Enter Customer ID");
 			int custId = scanner.nextInt();
 			
-			customer = myBank.getCustomer(custId);
+			customer = custServ.getCust(custId);
 			
 			if(customer == null)
 				System.out.println("Invalid Customer ID");
 		}
 		
 		Account account = null;
-		ArrayList<Account> accounts = customer.getCustAccounts();
+		ArrayList<Account> accounts = accServ.getCustAccounts(customer.getCustID());
 		while(account == null) {
 		
 			for(Account acc : accounts)
@@ -167,7 +154,7 @@ public class MyBank {
 			
 			System.out.println("Enter Account ID");
 			int accId = scanner.nextInt();
-			account = customer.getCustAccount(accId);
+			account = accServ.getCustAccount(accId);
 			
 			if(account == null)
 				System.out.println("Invalid Account ID");
@@ -258,7 +245,7 @@ public class MyBank {
 		}
 	}
 	
-	private HashMap<Integer, Customer> getTestCusts() {
+	/*private HashMap<Integer, Customer> getTestCusts() {
 		HashMap<Integer, Customer> customers = new HashMap<Integer, Customer>();
 		Address add1 = new Address();
 		add1.createAddress("123 Fake St", "IL", "Chicago", "60551");
@@ -268,6 +255,6 @@ public class MyBank {
 		cust1.createCustomer(1, "Joe Johnson", "555-555-5555", "joe@johnson.com", acc1, add1);
 		customers.put(cust1.getCustID(), cust1);
 		return customers;
-	}
+	}*/
 	
 }
