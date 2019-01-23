@@ -1,11 +1,13 @@
 package bank.transaction;
 
-import bank.customer.Customer;
+import bank.account.Account;
 
-public class CDTransaction extends Transaction{
+public class CDTransaction{
 	
-	public void CD(Customer objCustomer,int amountToDeposit)
-	{
-		objCustomer.getCustAccount().setAccBalance(objCustomer.getCustAccount().getAccBalance() + amountToDeposit);		 
+	public Account cashDeposit(Account account, int amountToDeposit) {
+		double balance = account.getAccBalance();
+		balance += amountToDeposit;
+		account.setAccBalance(balance);
+		return account;
 	}
 }

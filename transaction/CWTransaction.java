@@ -1,11 +1,12 @@
 package bank.transaction;
 
-import bank.customer.Customer;
+import bank.account.Account;
 
-public class CWTransaction extends Transaction 
-{
-	public void CW(Customer objCustomer,int amountToWithdraw)
-	{
-		objCustomer.getCustAccount().setAccBalance(objCustomer.getCustAccount().getAccBalance() - amountToWithdraw);
+public class CWTransaction{
+	public Account cashWithdrawal(Account account, int amountToWithdraw) {
+		double balance = account.getAccBalance();
+		balance -= amountToWithdraw;
+		account.setAccBalance(balance);
+		return account;
 	}
 }
